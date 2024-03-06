@@ -7,6 +7,27 @@
 		<UseWPF>true</UseWPF>
 	</PropertyGroup>
 
+	<PropertyGroup Label="Nuget">
+		<Version>0.1.0-alpha</Version>
+		<PackageDescription>Allow printing of a Wpf IDocumentPaginatorSource with the modern Windows PrintManager / Dialog</PackageDescription>
+		<Authors>ShortDevelopment</Authors>
+		<Company>Diahon</Company>
+		<RepositoryUrl>https://github.com/Diahon/Diahon.WinUI.Printing</RepositoryUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+	</PropertyGroup>
+
+	<ItemGroup Label="Nuget">
+		<Content Include="README.md">
+			<PackagePath>/</PackagePath>
+			<Pack>true</Pack>
+		</Content>
+		<Content Include="../LICENSE">
+			<PackagePath>/</PackagePath>
+			<Pack>true</Pack>
+		</Content>
+	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.49-beta">
 			<PrivateAssets>all</PrivateAssets>
@@ -14,7 +35,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\ReachFrameworkHelper\ReachFrameworkHelper.ilproj" />
+		<ProjectReference Include="..\ReachFrameworkHelper\ReachFrameworkHelper.ilproj"  />
 	</ItemGroup>
+
+	<PropertyGroup>
+		<TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+	</PropertyGroup>
+
+	<Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
+		<ItemGroup>
+			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+		</ItemGroup>
+	</Target>
 
 </Project>
