@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Label="Nuget">
-		<Version>0.1.0-alpha</Version>
+		<Version>0.1.1-alpha</Version>
 		<PackageDescription>Allow printing of a Wpf IDocumentPaginatorSource with the modern Windows PrintManager / Dialog</PackageDescription>
 		<Authors>ShortDevelopment</Authors>
 		<Company>Diahon</Company>
@@ -35,7 +35,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\ReachFrameworkHelper\ReachFrameworkHelper.ilproj"  />
+		<ProjectReference Include="..\ReachFrameworkHelper\ReachFrameworkHelper.ilproj" PrivateAssets="all" />
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -44,7 +44,7 @@
 
 	<Target DependsOnTargets="ResolveReferences" Name="CopyProjectReferencesToPackage">
 		<ItemGroup>
-			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
+			<BuildOutputInPackage Include="@(ReferenceCopyLocalPaths->WithMetadataValue('ReferenceSourceTarget', 'ProjectReference'))" />
 		</ItemGroup>
 	</Target>
 
