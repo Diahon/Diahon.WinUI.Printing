@@ -1,9 +1,9 @@
-.class public abstract auto ansi sealed beforefieldinit Diahon.Wpf.XpsSerializationHelper extends [System.Runtime]System.Object
+.class public abstract auto ansi sealed beforefieldinit System.Windows.Xps.Serialization.XpsSerializationHelper extends [System.Runtime]System.Object
 {
     .custom instance void [System.Runtime]System.Runtime.CompilerServices.NullableContextAttribute::.ctor(uint8) = (
         01 00 01 00 00
     )
-    .method public hidebysig static void PrintXps(class [System.Runtime]System.Object target, class [PresentationCore]System.Windows.Documents.DocumentPaginator paginator, class [ReachFramework]System.Windows.Xps.Serialization.XpsSerializationPrintTicketRequiredEventHandler printTicketCallback, class [ReachFramework]System.Windows.Xps.Serialization.XpsSerializationProgressChangedEventHandler progressCallback) cil managed
+    .method public hidebysig static void WriteToXpsDocumentPackageTarget(class [System.Runtime]System.Object target, class [PresentationCore]System.Windows.Documents.DocumentPaginator paginator, class [ReachFramework]System.Windows.Xps.Serialization.XpsSerializationPrintTicketRequiredEventHandler printTicketCallback, class [ReachFramework]System.Windows.Xps.Serialization.XpsSerializationProgressChangedEventHandler progressCallback) cil managed
     {
         .locals (
             [0] class [ReachFramework]System.Windows.Xps.Packaging.XpsOMPackagingPolicy policy,

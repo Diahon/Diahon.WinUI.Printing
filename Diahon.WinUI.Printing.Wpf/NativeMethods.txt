@@ -1,0 +1,11 @@
+﻿HRESULT
+
+IPrintDocumentPackageTarget
+
+ID_DOCUMENTPACKAGETARGET_MSXPS
+
+IXpsDocumentPackageTarget
+IPrintPreviewDxgiPackageTarget
+
+D2D1CreateFactory
+ID2D1Factory
