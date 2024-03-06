@@ -4,16 +4,23 @@ using System.Runtime.InteropServices;
 using System.Windows.Documents;
 using System.Windows.Threading;
 using Windows.Graphics.Printing;
+using Windows.Graphics.Printing.OptionDetails;
 using Windows.Win32.Foundation;
 using Windows.Win32.Storage.Xps.Printing;
 
 namespace Diahon.WinUI.Printing.Wpf;
 
 [ComVisible(true)]
-public sealed class WpfPrintDocumentSource(Dispatcher? dispatcher = null) : IPrintDocumentPageSource, IPrintPreviewPageCollection, IPrintDocumentSource, ICustomQueryInterface
+public sealed class WpfPrintDocumentSource(PaginatorRequiredEventHandler paginatorSource, Dispatcher? dispatcher = null) : IPrintDocumentPageSource, IPrintPreviewPageCollection, IPrintDocumentSource, ICustomQueryInterface
 {
     readonly Dispatcher _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
-    public required Func<PrintTaskOptions, IDocumentPaginatorSource> PaginatorSource { get; set; }
+    readonly PaginatorRequiredEventHandler _paginatorSource = paginatorSource;
+
+    DocumentPaginator GetPaginator(PrintTaskOptions options)
+    {
+        var details = PrintTaskOptionDetails.GetFromPrintTaskOptions(options);
+        return _paginatorSource(options, details).DocumentPaginator;
+    }
 
     IPrintDocumentPackageTarget? previewPackageTarget;
     HRESULT IPrintDocumentPageSource.GetPreviewPageCollection(IPrintDocumentPackageTarget docPackageTarget, out IPrintPreviewPageCollection docPageCollection)
@@ -31,7 +38,7 @@ public sealed class WpfPrintDocumentSource(Dispatcher? dispatcher = null) : IPri
     {
         // PrintDocument.GetPages
         var options = PrintTaskOptions.FromAbi(pPrintTaskOptions);
-        _dispatcher.Invoke(() => PrintCompat.Print(PaginatorSource(options).DocumentPaginator, docPackageTarget, options));
+        _dispatcher.Invoke(() => PrintCompat.Print(GetPaginator(options), docPackageTarget, options));
         return default;
     }
 
@@ -49,9 +56,9 @@ public sealed class WpfPrintDocumentSource(Dispatcher? dispatcher = null) : IPri
     /// </summary>
     HRESULT IPrintPreviewPageCollection.Paginate(uint currentJobPage, nint pPrintTaskOptions)
     {
-        var printTaskOptions = PrintTaskOptions.FromAbi(pPrintTaskOptions);
+        var options = PrintTaskOptions.FromAbi(pPrintTaskOptions);
         _dispatcher.Invoke(() => RenderCompat.Preview(
-            PaginatorSource(printTaskOptions).DocumentPaginator,
+            GetPaginator(options),
             previewPackageTarget ?? throw new UnreachableException($"No {nameof(previewPackageTarget)}")
         ));
         return default;
