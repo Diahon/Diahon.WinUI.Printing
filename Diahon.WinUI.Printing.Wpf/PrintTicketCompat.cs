@@ -33,7 +33,7 @@ internal static class PrintTicketCompat
             {
                 PrintDuplex.OneSided => Duplexing.OneSided,
                 PrintDuplex.TwoSidedShortEdge => Duplexing.TwoSidedShortEdge,
-                PrintDuplex.TwoSidedLongEdge => Duplexing.TwoSidedShortEdge,
+                PrintDuplex.TwoSidedLongEdge => Duplexing.TwoSidedLongEdge,
                 _ => null
             },
             // HolePunch
