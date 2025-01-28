@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WpfPrintingSample": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
