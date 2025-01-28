@@ -1,7 +1,5 @@
 ﻿using Diahon.WinUI.Printing.Wpf.Interop;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Windows.Documents;
 using System.Windows.Threading;
 using Windows.Graphics.Printing;
 using Windows.Graphics.Printing.OptionDetails;
@@ -11,23 +9,31 @@ using Windows.Win32.Storage.Xps.Printing;
 namespace Diahon.WinUI.Printing.Wpf;
 
 [ComVisible(true)]
-public sealed class WpfPrintDocumentSource(PaginatorRequiredEventHandler paginatorSource, Dispatcher? dispatcher = null) : IPrintDocumentPageSource, IPrintPreviewPageCollection, IPrintDocumentSource, ICustomQueryInterface
+public sealed class WpfPrintDocumentSource : IPrintDocumentPageSource, IPrintDocumentSource, ICustomQueryInterface
 {
-    readonly Dispatcher _dispatcher = dispatcher ?? Dispatcher.CurrentDispatcher;
-    readonly PaginatorRequiredEventHandler _paginatorSource = paginatorSource;
+    public Dispatcher Dispatcher { get; init; } = Dispatcher.CurrentDispatcher;
+    public required PaginatorRequiredEventHandler OnPaginatorRequired { get; init; }
 
-    DocumentPaginator GetPaginator(PrintTaskOptions options)
-    {
-        var details = PrintTaskOptionDetails.GetFromPrintTaskOptions(options);
-        return _paginatorSource(options, details).DocumentPaginator;
-    }
-
-    IPrintDocumentPackageTarget? previewPackageTarget;
+    readonly List<PreviewCollection> _previewCollections = [];
     HRESULT IPrintDocumentPageSource.GetPreviewPageCollection(IPrintDocumentPackageTarget docPackageTarget, out IPrintPreviewPageCollection docPageCollection)
     {
-        previewPackageTarget = docPackageTarget;
-        docPageCollection = this;
+        var target = docPackageTarget.GetPreviewTarget();
+        PreviewCollection preview = new()
+        {
+            Dispatcher = Dispatcher,
+            OnPaginatorRequired = OnPaginatorRequired,
+            Target = target
+        };
+        _previewCollections.Add(preview);
+
+        docPageCollection = preview;
         return default;
+    }
+
+    public void InvalidatePreview()
+    {
+        foreach (var preview in _previewCollections)
+            preview.Invalidate();
     }
 
     /// <summary>
@@ -36,31 +42,13 @@ public sealed class WpfPrintDocumentSource(PaginatorRequiredEventHandler paginat
     /// </summary>
     HRESULT IPrintDocumentPageSource.MakeDocument(nint pPrintTaskOptions, IPrintDocumentPackageTarget docPackageTarget)
     {
-        // PrintDocument.GetPages
         var options = PrintTaskOptions.FromAbi(pPrintTaskOptions);
-        _dispatcher.Invoke(() => PrintCompat.Print(GetPaginator(options), docPackageTarget, options));
-        return default;
-    }
-
-    /// <summary>
-    /// Callback to indicate that a preview setting has changed that requires the application to repaginate its printing content.
-    /// </summary>
-    HRESULT IPrintPreviewPageCollection.MakePage(uint desiredJobPage, float width, float height)
-    {
-        // PrintDocument.GetPreviewPage
-        return default;
-    }
-
-    /// <summary>
-    /// Callback to indicate that a preview setting has changed that requires the application to repaginate its printing content.
-    /// </summary>
-    HRESULT IPrintPreviewPageCollection.Paginate(uint currentJobPage, nint pPrintTaskOptions)
-    {
-        var options = PrintTaskOptions.FromAbi(pPrintTaskOptions);
-        _dispatcher.Invoke(() => RenderCompat.Preview(
-            GetPaginator(options),
-            previewPackageTarget ?? throw new UnreachableException($"No {nameof(previewPackageTarget)}")
-        ));
+        var details = PrintTaskOptionDetails.GetFromPrintTaskOptions(options);
+        Dispatcher.Invoke(() =>
+        {
+            var paginator = OnPaginatorRequired(options, details).DocumentPaginator;
+            PrintCompat.Print(paginator, docPackageTarget, options);
+        });
         return default;
     }
 
@@ -70,11 +58,6 @@ public sealed class WpfPrintDocumentSource(PaginatorRequiredEventHandler paginat
         if (iid == typeof(IPrintDocumentPageSource).GUID)
         {
             ppv = GetInterface<IPrintDocumentPageSource>(this);
-            return CustomQueryInterfaceResult.Handled;
-        }
-        else if (iid == typeof(IPrintPreviewPageCollection).GUID)
-        {
-            ppv = GetInterface<IPrintPreviewPageCollection>(this);
             return CustomQueryInterfaceResult.Handled;
         }
 

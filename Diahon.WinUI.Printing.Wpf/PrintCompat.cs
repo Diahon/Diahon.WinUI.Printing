@@ -12,7 +12,7 @@ static class PrintCompat
 {
     static readonly Guid IID_IXpsDocumentPackageTarget = typeof(IXpsDocumentPackageTarget).GUID;
 
-    //https://github.com/dotnet/wpf/blob/089e48a18e84ba199d813b572acd6ca3781be27b/src/Microsoft.DotNet.Wpf/src/System.Printing/CPP/src/XPSDocumentWriter.cpp#L428
+    // https://github.com/dotnet/wpf/blob/089e48a18e84ba199d813b572acd6ca3781be27b/src/Microsoft.DotNet.Wpf/src/System.Printing/CPP/src/XPSDocumentWriter.cpp#L428
     internal static void Print(DocumentPaginator paginator, IPrintDocumentPackageTarget docTarget, PrintTaskOptions options, PrintTicket? ticket = null)
     {
         ticket ??= PrintTicketCompat.CreatePrintTicket(options);
