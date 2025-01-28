@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<PropertyGroup Label="Nuget">
-		<Version>0.1.2-alpha</Version>
+		<Version>0.2.0-alpha</Version>
 		<PackageDescription>Allow printing of a Wpf IDocumentPaginatorSource with the modern Windows PrintManager / Dialog</PackageDescription>
 		<Authors>ShortDevelopment</Authors>
 		<Company>Diahon</Company>
